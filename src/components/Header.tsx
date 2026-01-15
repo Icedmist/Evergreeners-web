@@ -59,7 +59,10 @@ export function Header() {
             {/* Notifications */}
             <button
               className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 relative"
-              onClick={() => navigate('/profile')}
+              onClick={() => {
+                navigate('/profile');
+                triggerHaptic();
+              }}
             >
               <Bell className="w-4 h-4" />
               {notifications > 0 && (
@@ -80,7 +83,8 @@ export function Header() {
             {/* Profile Avatar */}
             <Link
               to="/profile"
-              className="ml-2 w-8 h-8 rounded-full bg-secondary border border-border overflow-hidden hover:border-primary transition-colors"
+              onClick={() => triggerHaptic()}
+              className="ml-2 w-8 h-8 rounded-full bg-secondary border border-primary overflow-hidden hover:border-primary transition-colors"
             >
               <img
                 src="https://avatars.githubusercontent.com/u/1?v=4"
