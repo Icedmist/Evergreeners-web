@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const triggerHaptic = () => {
-  if (navigator.vibrate) {
-    navigator.vibrate(10);
+  if (typeof navigator !== "undefined" && navigator.vibrate) {
+    navigator.vibrate(25);
   }
 };
