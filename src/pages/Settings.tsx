@@ -1,8 +1,8 @@
 import { Header } from "@/components/Header";
 import { FloatingNav } from "@/components/FloatingNav";
 import { Section } from "@/components/Section";
-import { 
-  Globe, Bell, Shield, Moon, Trash2, LogOut, 
+import {
+  Globe, Bell, Shield, Moon, Trash2, LogOut,
   ChevronRight, Github, Clock, Eye, RefreshCw, Download
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -77,8 +77,8 @@ export default function Settings() {
   return (
     <div className="min-h-screen bg-background custom-scrollbar">
       <Header />
-      
-      <main className="container pt-24 pb-32 space-y-8">
+
+      <main className="container pt-24 pb-32 md:pb-12 space-y-8">
         {/* Page Header */}
         <section className="animate-fade-in">
           <h1 className="text-3xl font-bold text-gradient">Settings</h1>
@@ -99,7 +99,7 @@ export default function Settings() {
                   <p className="text-sm text-muted-foreground">@alexdev</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={handleDisconnectGithub}
                 className="text-sm text-destructive hover:underline"
               >
@@ -108,7 +108,7 @@ export default function Settings() {
             </div>
 
             {/* Refresh Data */}
-            <button 
+            <button
               onClick={handleRefreshData}
               className="w-full flex items-center justify-between p-4 bg-secondary/30 hover:bg-secondary/50 transition-colors"
             >
@@ -125,7 +125,7 @@ export default function Settings() {
             </button>
 
             {/* Export Data */}
-            <button 
+            <button
               onClick={handleExportData}
               className="w-full flex items-center justify-between p-4 bg-secondary/30 hover:bg-secondary/50 transition-colors"
             >
@@ -317,7 +317,7 @@ export default function Settings() {
         {/* Danger Zone */}
         <Section title="Danger Zone" className="animate-fade-up" style={{ animationDelay: "0.3s" }}>
           <div className="space-y-3">
-            <button 
+            <button
               onClick={() => toast.success("Logged out successfully")}
               className="w-full flex items-center gap-3 p-4 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 transition-colors text-left"
             >

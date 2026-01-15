@@ -43,8 +43,8 @@ export default function Streaks() {
   return (
     <div className="min-h-screen bg-background custom-scrollbar">
       <Header />
-      
-      <main className="container pt-24 pb-32 space-y-8">
+
+      <main className="container pt-24 pb-32 md:pb-12 space-y-8">
         {/* Hero Section */}
         <section className="animate-fade-in text-center py-8">
           <div className="relative inline-block">
@@ -57,7 +57,7 @@ export default function Streaks() {
               <p className="text-xl text-muted-foreground mt-4">day streak</p>
             </div>
           </div>
-          
+
           <div className="mt-8 flex items-center justify-center gap-8">
             <div className="text-center">
               <p className="text-3xl font-bold text-foreground">{longestStreak}</p>
@@ -108,8 +108,8 @@ export default function Streaks() {
                 key={day.day}
                 className={cn(
                   "aspect-square rounded-lg flex items-center justify-center text-sm transition-all duration-300 hover:scale-110 cursor-pointer",
-                  day.active 
-                    ? "bg-primary/20 text-primary border border-primary/30" 
+                  day.active
+                    ? "bg-primary/20 text-primary border border-primary/30"
                     : "bg-secondary/50 text-muted-foreground"
                 )}
               >
@@ -123,12 +123,12 @@ export default function Streaks() {
         <Section title="Badges" className="animate-fade-up" style={{ animationDelay: "0.2s" }}>
           <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
             {badges.map((badge) => (
-              <div 
+              <div
                 key={badge.name}
                 className={cn(
                   "flex flex-col items-center p-4 rounded-xl border transition-all duration-300 group cursor-pointer hover:scale-105",
-                  badge.earned 
-                    ? "border-primary/30 bg-primary/10" 
+                  badge.earned
+                    ? "border-primary/30 bg-primary/10"
                     : "border-border bg-secondary/30 opacity-50"
                 )}
               >
@@ -154,8 +154,8 @@ export default function Streaks() {
                 onClick={() => setSelectedHistory(selectedHistory?.id === streak.id ? null : streak)}
                 className={cn(
                   "p-4 rounded-xl border transition-all duration-300 cursor-pointer",
-                  index === 0 
-                    ? "border-primary/50 bg-primary/10" 
+                  index === 0
+                    ? "border-primary/50 bg-primary/10"
                     : "border-border bg-secondary/30 hover:bg-secondary/50",
                   selectedHistory?.id === streak.id && "ring-1 ring-primary"
                 )}
@@ -182,8 +182,8 @@ export default function Streaks() {
                 {selectedHistory?.id === streak.id && (
                   <div className="mt-4 pt-4 border-t border-border animate-fade-in">
                     <p className="text-sm text-muted-foreground">
-                      You maintained consistent activity during this period. 
-                      {streak.reason 
+                      You maintained consistent activity during this period.
+                      {streak.reason
                         ? ` The streak ended due to ${streak.reason.toLowerCase()}.`
                         : " Keep going!"}
                     </p>
@@ -202,7 +202,7 @@ export default function Streaks() {
               <div>
                 <p className="font-medium">Freeze Days Available: 2</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Use a freeze to protect your streak on days you can't code. 
+                  Use a freeze to protect your streak on days you can't code.
                   You earn 1 freeze for every 30-day streak.
                 </p>
               </div>

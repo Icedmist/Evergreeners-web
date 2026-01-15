@@ -1,5 +1,5 @@
 import { Home, BarChart3, Flame, Target, User, Trophy } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, triggerHaptic } from "@/lib/utils";
 import { useLocation, Link } from "react-router-dom";
 
 interface NavItem {
@@ -21,20 +21,21 @@ export function FloatingNav() {
   const currentPath = location.pathname;
 
   return (
-    <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-      <div className="glass-nav rounded-2xl px-2 py-2">
-        <ul className="flex items-center gap-1">
+    <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 md:hidden">
+      <div className="glass-nav rounded-2xl px-2 py-2 border border-primary/20 bg-primary/10 w-[90vw] max-w-md">
+        <ul className="flex items-center justify-between gap-1 w-full">
           {navItems.map((item) => {
             const isActive = currentPath === item.href;
             return (
               <li key={item.label}>
                 <Link
                   to={item.href}
+                  onClick={() => triggerHaptic()}
                   className={cn(
                     "flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300",
                     isActive
-                      ? "bg-primary text-primary-foreground scale-105"
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                      ? "border border-primary text-primary bg-transparent scale-105"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary border border-transparent"
                   )}
                 >
                   <item.icon className={cn("w-4 h-4", isActive && "animate-scale-in")} />

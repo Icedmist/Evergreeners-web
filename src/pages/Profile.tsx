@@ -2,8 +2,8 @@ import { Header } from "@/components/Header";
 import { FloatingNav } from "@/components/FloatingNav";
 import { Section } from "@/components/Section";
 import { ActivityGrid } from "@/components/ActivityGrid";
-import { 
-  Github, MapPin, Calendar, Link as LinkIcon, 
+import {
+  Github, MapPin, Calendar, Link as LinkIcon,
   Edit2, Share2, Check, Copy, Trophy, Flame, Target, GitCommit,
   Eye, EyeOff, ExternalLink
 } from "lucide-react";
@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-const activityData = Array.from({ length: 84 }, () => 
+const activityData = Array.from({ length: 84 }, () =>
   Math.random() > 0.3 ? Math.floor(Math.random() * 5) : 0
 );
 
@@ -67,8 +67,8 @@ export default function Profile() {
   return (
     <div className="min-h-screen bg-background custom-scrollbar">
       <Header />
-      
-      <main className="container pt-24 pb-32 space-y-8">
+
+      <main className="container pt-24 pb-32 md:pb-12 space-y-8">
         {/* Profile Header */}
         <section className="animate-fade-in">
           <div className="flex flex-col sm:flex-row items-start gap-6">
@@ -81,7 +81,7 @@ export default function Profile() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <button 
+              <button
                 className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                 onClick={() => setIsEditing(true)}
               >
@@ -152,7 +152,7 @@ export default function Profile() {
                       </div>
                     </DialogContent>
                   </Dialog>
-                  <button 
+                  <button
                     className="p-2 rounded-xl border border-border hover:bg-secondary transition-colors"
                     onClick={handleCopyLink}
                   >
@@ -182,7 +182,7 @@ export default function Profile() {
         <Section className="animate-fade-up" style={{ animationDelay: "0.1s" }}>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {stats.map((stat) => (
-              <div 
+              <div
                 key={stat.label}
                 className="p-4 rounded-xl border border-border bg-secondary/30 text-center hover:bg-secondary/50 transition-all duration-300"
               >
@@ -234,9 +234,9 @@ export default function Profile() {
                 <p className="text-sm text-muted-foreground">@{profile.username}</p>
               </div>
             </div>
-            <a 
-              href={`https://github.com/${profile.username}`} 
-              target="_blank" 
+            <a
+              href={`https://github.com/${profile.username}`}
+              target="_blank"
               rel="noopener noreferrer"
               className="p-2 rounded-xl hover:bg-primary/20 transition-colors"
             >
@@ -254,13 +254,12 @@ export default function Profile() {
               {[0, 1, 2, 3, 4].map((level) => (
                 <div
                   key={level}
-                  className={`w-3 h-3 rounded-sm ${
-                    level === 0 ? "bg-secondary" :
-                    level === 1 ? "bg-primary/25" :
-                    level === 2 ? "bg-primary/50" :
-                    level === 3 ? "bg-primary/75" :
-                    "bg-primary"
-                  }`}
+                  className={`w-3 h-3 rounded-sm ${level === 0 ? "bg-secondary" :
+                      level === 1 ? "bg-primary/25" :
+                        level === 2 ? "bg-primary/50" :
+                          level === 3 ? "bg-primary/75" :
+                            "bg-primary"
+                    }`}
                 />
               ))}
             </div>
@@ -272,12 +271,12 @@ export default function Profile() {
         <Section title="Achievements" className="animate-fade-up" style={{ animationDelay: "0.3s" }}>
           <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
             {achievements.map((achievement) => (
-              <div 
+              <div
                 key={achievement.name}
                 className={cn(
                   "flex flex-col items-center p-3 rounded-xl border transition-all duration-300 cursor-default",
-                  achievement.earned 
-                    ? "border-primary/30 bg-primary/10" 
+                  achievement.earned
+                    ? "border-primary/30 bg-primary/10"
                     : "border-border bg-secondary/30 opacity-50"
                 )}
               >
@@ -291,14 +290,14 @@ export default function Profile() {
         {/* Quick Actions */}
         <Section title="Quick Actions" className="animate-fade-up" style={{ animationDelay: "0.35s" }}>
           <div className="grid grid-cols-2 gap-3">
-            <button 
+            <button
               onClick={() => navigate('/settings')}
               className="p-4 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 transition-all duration-300 text-left"
             >
               <p className="font-medium">Settings</p>
               <p className="text-xs text-muted-foreground mt-1">Manage your account</p>
             </button>
-            <button 
+            <button
               onClick={() => navigate('/leaderboard')}
               className="p-4 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 transition-all duration-300 text-left"
             >

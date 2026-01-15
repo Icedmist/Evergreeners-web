@@ -2,11 +2,11 @@ import { Header } from "@/components/Header";
 import { FloatingNav } from "@/components/FloatingNav";
 import { Section } from "@/components/Section";
 import { GoalProgress } from "@/components/GoalProgress";
-import { 
-  Target, Plus, Edit2, Trash2, Check, X, Calendar, 
+import {
+  Target, Plus, Edit2, Trash2, Check, X, Calendar,
   Flame, GitCommit, BookOpen, Trophy, Clock
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, triggerHaptic } from "@/lib/utils";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -66,7 +66,7 @@ export default function Goals() {
   };
 
   const updateGoalTarget = (id: number, newTarget: number) => {
-    setGoals(goals.map(g => 
+    setGoals(goals.map(g =>
       g.id === id ? { ...g, target: newTarget, title: g.title.replace(/\d+/, String(newTarget)) } : g
     ));
     setEditingGoal(null);
@@ -75,8 +75,8 @@ export default function Goals() {
   return (
     <div className="min-h-screen bg-background custom-scrollbar">
       <Header />
-      
-      <main className="container pt-24 pb-32 space-y-8">
+
+      <main className="container pt-24 pb-32 md:pb-12 space-y-8">
         {/* Page Header */}
         <section className="animate-fade-in flex items-center justify-between">
           <div>
@@ -85,7 +85,7 @@ export default function Goals() {
           </div>
           <Dialog open={isAddingGoal} onOpenChange={setIsAddingGoal}>
             <DialogTrigger asChild>
-              <button className="p-3 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 hover:scale-105">
+              <button onClick={() => triggerHaptic()} className="p-3 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 hover:scale-105">
                 <Plus className="w-5 h-5" />
               </button>
             </DialogTrigger>
@@ -102,6 +102,7 @@ export default function Goals() {
                         onClick={() => {
                           setNewGoalType(template.type);
                           setNewGoalTarget(template.defaultTarget);
+                          triggerHaptic();
                         }}
                         className="p-4 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 transition-all duration-300 text-left group"
                       >
@@ -144,7 +145,10 @@ export default function Goals() {
                       <Button
                         onClick={() => {
                           const template = goalTemplates.find(t => t.type === newGoalType);
-                          if (template) addGoal(template);
+                          if (template) {
+                            addGoal(template);
+                            triggerHaptic();
+                          }
                         }}
                         className="flex-1 bg-primary hover:bg-primary/90"
                       >
@@ -182,7 +186,7 @@ export default function Goals() {
         <Section title="Active Goals" className="animate-fade-up" style={{ animationDelay: "0.15s" }}>
           <div className="space-y-4">
             {activeGoals.map((goal) => (
-              <div 
+              <div
                 key={goal.id}
                 className="p-4 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 transition-all duration-300 group"
               >
@@ -203,8 +207,11 @@ export default function Goals() {
                   <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Dialog open={editingGoal?.id === goal.id} onOpenChange={(open) => !open && setEditingGoal(null)}>
                       <DialogTrigger asChild>
-                        <button 
-                          onClick={() => setEditingGoal(goal)}
+                        <button
+                          onClick={() => {
+                            setEditingGoal(goal);
+                            triggerHaptic();
+                          }}
                           className="p-2 rounded-lg hover:bg-secondary transition-colors"
                         >
                           <Edit2 className="w-4 h-4 text-muted-foreground" />
@@ -238,18 +245,21 @@ export default function Goals() {
                         </div>
                       </DialogContent>
                     </Dialog>
-                    <button 
-                      onClick={() => deleteGoal(goal.id)}
+                    <button
+                      onClick={() => {
+                        deleteGoal(goal.id);
+                        triggerHaptic();
+                      }}
                       className="p-2 rounded-lg hover:bg-destructive/20 transition-colors"
                     >
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </button>
                   </div>
                 </div>
-                <GoalProgress 
-                  title="" 
-                  current={goal.current} 
-                  target={goal.target} 
+                <GoalProgress
+                  title=""
+                  current={goal.current}
+                  target={goal.target}
                 />
               </div>
             ))}
@@ -267,7 +277,7 @@ export default function Goals() {
           <Section title="Completed" className="animate-fade-up" style={{ animationDelay: "0.2s" }}>
             <div className="space-y-3">
               {completedGoals.map((goal) => (
-                <div 
+                <div
                   key={goal.id}
                   className="p-4 rounded-xl border border-primary/30 bg-primary/10 opacity-80"
                 >
@@ -293,7 +303,10 @@ export default function Goals() {
         <Section title="Suggested Goals" className="animate-fade-up" style={{ animationDelay: "0.25s" }}>
           <div className="space-y-3">
             <div className="p-4 rounded-xl border border-dashed border-border hover:border-primary/50 transition-colors cursor-pointer group"
-              onClick={() => setIsAddingGoal(true)}
+              onClick={() => {
+                setIsAddingGoal(true);
+                triggerHaptic();
+              }}
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -306,7 +319,10 @@ export default function Goals() {
               </div>
             </div>
             <div className="p-4 rounded-xl border border-dashed border-border hover:border-primary/50 transition-colors cursor-pointer group"
-              onClick={() => setIsAddingGoal(true)}
+              onClick={() => {
+                setIsAddingGoal(true);
+                triggerHaptic();
+              }}
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center group-hover:bg-primary/20 transition-colors">

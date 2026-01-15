@@ -3,8 +3,8 @@ import { FloatingNav } from "@/components/FloatingNav";
 import { Section } from "@/components/Section";
 import { ActivityGrid } from "@/components/ActivityGrid";
 import { InsightCard } from "@/components/InsightCard";
-import { 
-  BarChart, Bar, XAxis, YAxis, ResponsiveContainer, 
+import {
+  BarChart, Bar, XAxis, YAxis, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell, AreaChart, Area
 } from "recharts";
 import { useState } from "react";
@@ -48,7 +48,7 @@ const languageData = [
   { name: "Other", value: 15, color: "hsl(142, 71%, 25%)" },
 ];
 
-const activityData = Array.from({ length: 365 }, () => 
+const activityData = Array.from({ length: 365 }, () =>
   Math.random() > 0.25 ? Math.floor(Math.random() * 5) : 0
 );
 
@@ -67,8 +67,8 @@ export default function Analytics() {
   return (
     <div className="min-h-screen bg-background custom-scrollbar">
       <Header />
-      
-      <main className="container pt-24 pb-32 space-y-8">
+
+      <main className="container pt-24 pb-32 md:pb-12 space-y-8">
         {/* Page Header */}
         <section className="animate-fade-in">
           <h1 className="text-3xl font-bold text-gradient">Analytics</h1>
@@ -97,7 +97,7 @@ export default function Analytics() {
         <Section className="animate-fade-up" style={{ animationDelay: "0.1s" }}>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {stats.map((stat, index) => (
-              <div 
+              <div
                 key={stat.label}
                 className="p-4 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 transition-all duration-300 group"
               >
@@ -127,25 +127,25 @@ export default function Analytics() {
               <AreaChart data={monthlyData}>
                 <defs>
                   <linearGradient id="colorCommits" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(142, 71%, 45%)" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="hsl(142, 71%, 45%)" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="hsl(142, 71%, 45%)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="hsl(142, 71%, 45%)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis 
-                  dataKey="month" 
-                  axisLine={false} 
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
                   tickLine={false}
                   tick={{ fill: 'hsl(0, 0%, 55%)', fontSize: 12 }}
                 />
-                <YAxis 
-                  axisLine={false} 
+                <YAxis
+                  axisLine={false}
                   tickLine={false}
                   tick={{ fill: 'hsl(0, 0%, 55%)', fontSize: 12 }}
                 />
-                <Area 
-                  type="monotone" 
-                  dataKey="commits" 
-                  stroke="hsl(142, 71%, 45%)" 
+                <Area
+                  type="monotone"
+                  dataKey="commits"
+                  stroke="hsl(142, 71%, 45%)"
                   strokeWidth={2}
                   fill="url(#colorCommits)"
                 />
@@ -159,15 +159,15 @@ export default function Analytics() {
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={weeklyCommits}>
-                <XAxis 
-                  dataKey="day" 
-                  axisLine={false} 
+                <XAxis
+                  dataKey="day"
+                  axisLine={false}
                   tickLine={false}
                   tick={{ fill: 'hsl(0, 0%, 55%)', fontSize: 12 }}
                 />
-                <Bar 
-                  dataKey="commits" 
-                  fill="hsl(142, 71%, 45%)" 
+                <Bar
+                  dataKey="commits"
+                  fill="hsl(142, 71%, 45%)"
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>
@@ -182,16 +182,16 @@ export default function Analytics() {
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={hourlyActivity}>
-                  <XAxis 
-                    dataKey="hour" 
-                    axisLine={false} 
+                  <XAxis
+                    dataKey="hour"
+                    axisLine={false}
                     tickLine={false}
                     tick={{ fill: 'hsl(0, 0%, 55%)', fontSize: 10 }}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="activity" 
-                    stroke="hsl(142, 71%, 45%)" 
+                  <Line
+                    type="monotone"
+                    dataKey="activity"
+                    stroke="hsl(142, 71%, 45%)"
                     strokeWidth={2}
                     dot={{ fill: 'hsl(142, 71%, 45%)', strokeWidth: 0, r: 4 }}
                   />
@@ -239,13 +239,12 @@ export default function Analytics() {
               {[0, 1, 2, 3, 4].map((level) => (
                 <div
                   key={level}
-                  className={`w-3 h-3 rounded-sm ${
-                    level === 0 ? "bg-secondary" :
-                    level === 1 ? "bg-primary/25" :
-                    level === 2 ? "bg-primary/50" :
-                    level === 3 ? "bg-primary/75" :
-                    "bg-primary"
-                  }`}
+                  className={`w-3 h-3 rounded-sm ${level === 0 ? "bg-secondary" :
+                      level === 1 ? "bg-primary/25" :
+                        level === 2 ? "bg-primary/50" :
+                          level === 3 ? "bg-primary/75" :
+                            "bg-primary"
+                    }`}
                 />
               ))}
             </div>

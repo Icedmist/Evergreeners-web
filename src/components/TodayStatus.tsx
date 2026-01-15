@@ -11,14 +11,14 @@ export function TodayStatus({ active, commits, lastActivity }: TodayStatusProps)
   return (
     <div className={cn(
       "flex items-center gap-4 px-5 py-4 rounded-xl border",
-      active ? "border-primary/30 bg-primary/5" : "border-border bg-secondary/50"
+      active ? "border-primary/50 bg-primary/10" : "border-border bg-secondary/50"
     )}>
       {active ? (
         <CheckCircle2 className="w-5 h-5 text-primary" />
       ) : (
         <Circle className="w-5 h-5 text-muted-foreground" />
       )}
-      
+
       <div className="flex-1">
         <p className={cn(
           "font-medium",

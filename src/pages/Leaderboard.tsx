@@ -2,7 +2,7 @@ import { Header } from "@/components/Header";
 import { FloatingNav } from "@/components/FloatingNav";
 import { Section } from "@/components/Section";
 import { Trophy, Medal, Flame, Crown, TrendingUp, TrendingDown, Minus } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, triggerHaptic } from "@/lib/utils";
 import { useState } from "react";
 
 interface LeaderboardEntry {
@@ -58,8 +58,8 @@ export default function Leaderboard() {
   return (
     <div className="min-h-screen bg-background custom-scrollbar">
       <Header />
-      
-      <main className="container pt-24 pb-32 space-y-8">
+
+      <main className="container pt-24 pb-32 md:pb-12 space-y-8">
         {/* Page Header */}
         <section className="animate-fade-in">
           <h1 className="text-3xl font-bold text-gradient flex items-center gap-3">
@@ -110,7 +110,7 @@ export default function Leaderboard() {
         )}
 
         {/* Filter Tabs */}
-        <div className="flex gap-2 animate-fade-up" style={{ animationDelay: "0.1s" }}>
+        <div className="flex gap-2 animate-fade-up overflow-x-auto no-scrollbar pb-1" style={{ animationDelay: "0.1s" }}>
           {([
             { key: "streak", label: "Streak" },
             { key: "commits", label: "Commits" },
@@ -118,9 +118,12 @@ export default function Leaderboard() {
           ] as { key: FilterType; label: string }[]).map((tab) => (
             <button
               key={tab.key}
-              onClick={() => setFilter(tab.key)}
+              onClick={() => {
+                setFilter(tab.key);
+                triggerHaptic();
+              }}
               className={cn(
-                "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300",
+                "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap",
                 filter === tab.key
                   ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-muted-foreground hover:text-foreground"
@@ -132,14 +135,14 @@ export default function Leaderboard() {
         </div>
 
         {/* Top 3 Podium */}
-        <Section className="animate-fade-up" style={{ animationDelay: "0.15s" }}>
-          <div className="flex items-end justify-center gap-4 h-48">
+        <Section className="animate-fade-up mt-8" style={{ animationDelay: "0.15s" }}>
+          <div className="flex items-end justify-center gap-2 md:gap-4 h-80">
             {/* 2nd Place */}
             <div className="flex flex-col items-center">
               <div className="w-16 h-16 rounded-full border-2 border-gray-400 overflow-hidden mb-2">
                 <img src={leaderboardData[1].avatar} alt={leaderboardData[1].username} className="w-full h-full object-cover" />
               </div>
-              <p className="text-sm font-medium truncate max-w-20">{leaderboardData[1].username.split('_')[0]}</p>
+              <p className="text-sm font-medium truncate max-w-[80px] text-center">{leaderboardData[1].username.split('_')[0]}</p>
               <p className="text-xs text-muted-foreground">{leaderboardData[1].streak} days</p>
               <div className="w-20 h-24 bg-secondary/50 rounded-t-xl mt-2 flex items-center justify-center border-t border-x border-gray-400/30">
                 <Medal className="w-8 h-8 text-gray-400" />
@@ -154,7 +157,7 @@ export default function Leaderboard() {
                 </div>
                 <Crown className="w-6 h-6 text-yellow-400 absolute -top-3 left-1/2 -translate-x-1/2" />
               </div>
-              <p className="text-sm font-medium truncate max-w-24">{leaderboardData[0].username.split('_')[0]}</p>
+              <p className="text-sm font-medium truncate max-w-[100px] text-center">{leaderboardData[0].username.split('_')[0]}</p>
               <p className="text-xs text-primary font-bold">{leaderboardData[0].streak} days</p>
               <div className="w-24 h-32 bg-primary/20 rounded-t-xl mt-2 flex items-center justify-center border-t border-x border-primary/30">
                 <Trophy className="w-10 h-10 text-yellow-400" />
@@ -166,7 +169,7 @@ export default function Leaderboard() {
               <div className="w-16 h-16 rounded-full border-2 border-amber-600 overflow-hidden mb-2">
                 <img src={leaderboardData[2].avatar} alt={leaderboardData[2].username} className="w-full h-full object-cover" />
               </div>
-              <p className="text-sm font-medium truncate max-w-20">{leaderboardData[2].username.split('_')[0]}</p>
+              <p className="text-sm font-medium truncate max-w-[80px] text-center">{leaderboardData[2].username.split('_')[0]}</p>
               <p className="text-xs text-muted-foreground">{leaderboardData[2].streak} days</p>
               <div className="w-20 h-20 bg-secondary/50 rounded-t-xl mt-2 flex items-center justify-center border-t border-x border-amber-600/30">
                 <Medal className="w-8 h-8 text-amber-600" />
@@ -181,35 +184,35 @@ export default function Leaderboard() {
             {leaderboardData.slice(3).map((entry, index) => {
               const change = getRankChange(entry.rank, entry.previousRank);
               return (
-                <div 
+                <div
                   key={entry.username}
                   className={cn(
                     "flex items-center justify-between p-4 rounded-xl border transition-all duration-300 hover:scale-[1.01]",
-                    entry.isCurrentUser 
-                      ? "border-primary/50 bg-primary/10" 
+                    entry.isCurrentUser
+                      ? "border-primary/50 bg-primary/10"
                       : "border-border bg-secondary/30 hover:bg-secondary/50"
                   )}
                   style={{ animationDelay: `${0.05 * index}s` }}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-8 text-center">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="w-8 text-center flex-shrink-0">
                       {getRankBadge(entry.rank)}
                     </div>
-                    <div className="w-10 h-10 rounded-full border border-border overflow-hidden">
+                    <div className="w-10 h-10 rounded-full border border-border overflow-hidden flex-shrink-0">
                       <img src={entry.avatar} alt={entry.username} className="w-full h-full object-cover" />
                     </div>
-                    <div>
-                      <p className={cn("font-medium", entry.isCurrentUser && "text-primary")}>
+                    <div className="min-w-0 flex-1 pr-2">
+                      <p className={cn("font-medium truncate", entry.isCurrentUser && "text-primary")}>
                         @{entry.username}
-                        {entry.isCurrentUser && <span className="ml-2 text-xs">(You)</span>}
+                        {entry.isCurrentUser && <span className="ml-2 text-xs opacity-70">(You)</span>}
                       </p>
-                      <p className="text-xs text-muted-foreground">{entry.totalCommits.toLocaleString()} commits</p>
+                      <p className="text-xs text-muted-foreground truncate">{entry.totalCommits.toLocaleString()} commits</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 flex-shrink-0">
                     <div className="flex items-center gap-1">
                       <change.icon className={cn("w-3 h-3", change.class)} />
-                      <span className={cn("text-xs", change.class)}>{change.text}</span>
+                      <span className={cn("text-xs hidden sm:block", change.class)}>{change.text}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Flame className="w-4 h-4 text-primary" />

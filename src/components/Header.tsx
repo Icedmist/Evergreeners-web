@@ -1,29 +1,63 @@
-import { Settings, Bell, Menu } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Settings, Bell, Menu, Home, BarChart3, Flame, Target, Trophy } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { cn, triggerHaptic } from "@/lib/utils";
+
+const navItems = [
+  { icon: Home, label: "Home", href: "/" },
+  { icon: BarChart3, label: "Analytics", href: "/analytics" },
+  { icon: Flame, label: "Streaks", href: "/streaks" },
+  { icon: Target, label: "Goals", href: "/goals" },
+  { icon: Trophy, label: "Ranks", href: "/leaderboard" },
+];
 
 export function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
   const [notifications] = useState(3);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50">
-      <div className="glass-nav mx-4 mt-4 rounded-2xl">
-        <div className="container flex items-center justify-between py-3 px-4">
+    <header className="fixed top-0 left-0 right-0 z-50 px-4 md:px-0">
+      <div className="glass-nav mt-4 rounded-2xl mx-auto max-w-5xl border border-primary/20 bg-primary/10">
+        <div className="flex items-center justify-between py-3 px-4">
           <Link to="/" className="flex items-center gap-2 group">
-            <img 
-              src={logo} 
-              alt="Evergreeners" 
-              className="w-8 h-8 object-contain transition-transform group-hover:scale-110" 
+            <img
+              src={logo}
+              alt="Evergreeners"
+              className="w-8 h-8 object-contain transition-transform group-hover:scale-110"
             />
             <span className="font-semibold text-foreground hidden sm:block">Forever Green</span>
           </Link>
-          
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-1">
+            {navItems.map((item) => {
+              const isActive = currentPath === item.href;
+              return (
+                <Link
+                  key={item.label}
+                  to={item.href}
+                  onClick={() => triggerHaptic()}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 text-sm font-medium",
+                    isActive
+                      ? "border border-primary text-primary bg-transparent"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary border border-transparent"
+                  )}
+                >
+                  <item.icon className={cn("w-4 h-4", isActive && "text-primary")} />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+
           <div className="flex items-center gap-2">
             {/* Notifications */}
-            <button 
+            <button
               className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 relative"
               onClick={() => navigate('/profile')}
             >
@@ -34,17 +68,17 @@ export function Header() {
                 </span>
               )}
             </button>
-            
+
             {/* Settings - desktop */}
-            <button 
+            <button
               className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hidden sm:flex"
               onClick={() => navigate('/settings')}
             >
               <Settings className="w-4 h-4" />
             </button>
-            
+
             {/* Profile Avatar */}
-            <Link 
+            <Link
               to="/profile"
               className="ml-2 w-8 h-8 rounded-full bg-secondary border border-border overflow-hidden hover:border-primary transition-colors"
             >
@@ -55,26 +89,6 @@ export function Header() {
               />
             </Link>
 
-            {/* Mobile menu */}
-            <Sheet>
-              <SheetTrigger asChild className="sm:hidden">
-                <button className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 ml-1">
-                  <Menu className="w-4 h-4" />
-                </button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[280px] bg-background border-border">
-                <nav className="flex flex-col gap-4 mt-8">
-                  <Link to="/settings" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-secondary transition-colors">
-                    <Settings className="w-5 h-5" />
-                    <span>Settings</span>
-                  </Link>
-                  <Link to="/leaderboard" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-secondary transition-colors">
-                    <span className="text-lg">🏆</span>
-                    <span>Leaderboard</span>
-                  </Link>
-                </nav>
-              </SheetContent>
-            </Sheet>
           </div>
         </div>
       </div>
