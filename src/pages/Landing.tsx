@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import dashboardMockup from "@/assets/dashboard-mockup.png";
+import { ScrewToggle } from "@/components/ui/screw-toggle";
 
 export default function Landing() {
     const [text, setText] = useState("");
@@ -99,11 +100,9 @@ export default function Landing() {
                             </p>
 
                             <div className="flex flex-col sm:flex-row items-center gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
-                                <Link to="/signup">
-                                    <Button size="lg" className="w-full sm:w-auto bg-white text-black hover:bg-white/90 font-bold px-10 h-14 text-lg rounded-full shadow-[0_0_30px_-5px_rgba(255,255,255,0.3)] transition-all hover:scale-105 active:scale-95">
-                                        Start Tracking
-                                    </Button>
-                                </Link>
+                                <div className="scale-75 sm:scale-100 origin-left">
+                                    <ScrewToggle />
+                                </div>
                                 <Link to="/login" className="flex items-center gap-2 text-muted-foreground hover:text-white transition-colors group">
                                     View Demo <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                 </Link>

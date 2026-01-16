@@ -195,6 +195,359 @@ html::-webkit-scrollbar-thumb {
   }
 }
 
-.mask-gradient-b {
-  mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+/* --- Blur Blob Background --- */
+.blur-blob-bg {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  overflow: hidden;
+}
+
+.blur-blob-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image: radial-gradient(circle at 50% 50%, #0000 0, #0000 2px, hsl(0 0 4%) 2px);
+  background-size: 8px 8px;
+  animation: blob-hue 5s ease-in-out infinite;
+  --f: blur(3em) brightness(9);
+}
+
+@keyframes blob-hue {
+  0% {
+    backdrop-filter: var(--f) hue-rotate(0deg);
+  }
+
+  25% {
+    backdrop-filter: var(--f) hue-rotate(-25deg);
+  }
+
+  28% {
+    backdrop-filter: var(--f) hue-rotate(0deg);
+  }
+
+  32% {
+    backdrop-filter: var(--f) hue-rotate(-20deg);
+  }
+
+  39% {
+    backdrop-filter: var(--f) hue-rotate(0deg);
+  }
+
+  40% {
+    backdrop-filter: var(--f) hue-rotate(-20deg);
+  }
+
+  41% {
+    backdrop-filter: var(--f) hue-rotate(0deg);
+  }
+
+  42% {
+    backdrop-filter: var(--f) hue-rotate(-25deg);
+  }
+
+  44% {
+    backdrop-filter: var(--f) hue-rotate(0deg);
+  }
+
+  58% {
+    backdrop-filter: var(--f) hue-rotate(-20deg);
+  }
+
+  64% {
+    backdrop-filter: var(--f) hue-rotate(0deg);
+  }
+
+  80% {
+    backdrop-filter: var(--f) hue-rotate(-25deg);
+  }
+
+  to {
+    backdrop-filter: var(--f) hue-rotate(0deg);
+  }
+}
+
+.blur-blob-bg::before {
+  content: "";
+  position: absolute;
+  inset: -145%;
+  rotate: -45deg;
+  --c: #10b981;
+  /* Primary Green */
+  --c1: #059669;
+  /* Darker Green */
+  background-image: radial-gradient(4px 100px at 0px 235px, var(--c), #0000),
+    radial-gradient(4px 100px at 300px 235px, var(--c), #0000),
+    radial-gradient(3px 4px at 150px 117.5px, var(--c1) 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 252px, var(--c), #0000),
+    radial-gradient(4px 100px at 300px 252px, var(--c), #0000),
+    radial-gradient(3px 4px at 150px 126px, var(--c1) 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 150px, var(--c), #0000),
+    radial-gradient(4px 100px at 300px 150px, var(--c), #0000),
+    radial-gradient(3px 4px at 150px 75px, var(--c1) 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 253px, var(--c), #0000),
+    radial-gradient(4px 100px at 300px 253px, var(--c), #0000),
+    radial-gradient(3px 4px at 150px 126.5px, var(--c1) 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 204px, var(--c), #0000),
+    radial-gradient(4px 100px at 300px 204px, var(--c), #0000),
+    radial-gradient(3px 4px at 150px 102px, var(--c1) 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 134px, var(--c), #0000),
+    radial-gradient(4px 100px at 300px 134px, var(--c), #0000),
+    radial-gradient(3px 4px at 150px 67px, var(--c1) 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 179px, var(--c), #0000),
+    radial-gradient(4px 100px at 300px 179px, var(--c), #0000),
+    radial-gradient(3px 4px at 150px 89.5px, var(--c1) 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 299px, var(--c), #0000),
+    radial-gradient(4px 100px at 300px 299px, var(--c), #0000),
+    radial-gradient(3px 4px at 150px 149.5px, var(--c1) 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 215px, var(--c), #0000),
+    radial-gradient(4px 100px at 300px 215px, var(--c), #0000),
+    radial-gradient(3px 4px at 150px 107.5px, var(--c1) 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 281px, var(--c), #0000),
+    radial-gradient(4px 100px at 300px 281px, var(--c), #0000),
+    radial-gradient(3px 4px at 150px 140.5px, var(--c1) 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 158px, var(--c), #0000),
+    radial-gradient(4px 100px at 300px 158px, var(--c), #0000),
+    radial-gradient(3px 4px at 150px 79px, var(--c1) 100%, #0000 150%),
+    radial-gradient(4px 100px at 0px 210px, var(--c), #0000),
+    radial-gradient(4px 100px at 300px 210px, var(--c), #0000),
+    radial-gradient(3px 4px at 150px 105px, var(--c1) 100%, #0000 150%);
+  background-size: 300px 235px, 300px 235px, 300px 235px, 300px 252px, 300px 252px, 300px 252px, 300px 150px, 300px 150px, 300px 150px, 300px 253px, 300px 253px, 300px 253px, 300px 204px, 300px 204px, 300px 204px, 300px 134px, 300px 134px, 300px 134px, 300px 179px, 300px 179px, 300px 179px, 300px 299px, 300px 299px, 300px 299px, 300px 215px, 300px 215px, 300px 215px, 300px 281px, 300px 281px, 300px 281px, 300px 158px, 300px 158px, 300px 158px, 300px 210px, 300px 210px, 300px 210px;
+  animation: blob-move 150s linear infinite;
+}
+
+@keyframes blob-move {
+  0% {
+    background-position: 0px 220px, 3px 220px, 151.5px 337.5px, 25px 24px, 28px 24px, 176.5px 150px, 50px 16px, 53px 16px, 201.5px 91px, 75px 224px, 78px 224px, 226.5px 350.5px, 100px 19px, 103px 19px, 251.5px 121px, 125px 120px, 128px 120px, 276.5px 187px, 150px 31px, 153px 31px, 301.5px 120.5px, 175px 235px, 178px 235px, 326.5px 384.5px, 200px 121px, 203px 121px, 351.5px 228.5px, 225px 224px, 228px 224px, 376.5px 364.5px, 250px 26px, 253px 26px, 401.5px 105px, 275px 75px, 278px 75px, 426.5px 180px;
+  }
+
+  to {
+    background-position: 0px 6800px, 3px 6800px, 151.5px 6917.5px, 25px 13632px, 28px 13632px, 176.5px 13758px, 50px 5416px, 53px 5416px, 201.5px 5491px, 75px 17175px, 78px 17175px, 226.5px 17301.5px, 100px 5119px, 103px 5119px, 251.5px 5221px, 125px 8428px, 128px 8428px, 276.5px 8495px, 150px 9876px, 153px 9876px, 301.5px 9965.5px, 175px 13391px, 178px 13391px, 326.5px 13540.5px, 200px 14741px, 203px 14741px, 351.5px 14848.5px, 225px 18770px, 228px 18770px, 376.5px 18910.5px, 250px 5082px, 253px 5082px, 401.5px 5161px, 275px 6375px, 278px 6375px, 426.5px 6480px;
+  }
+}
+
+/* --- Terminal Card --- */
+.card {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  min-width: 300px;
+}
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+  z-index: 10;
+  border: 0.5px solid #525252;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.terminal {
+  display: flex;
+  flex-direction: column;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  min-height: 40px;
+  padding-inline: 12px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  background-color: #202425;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 2.5rem;
+  user-select: none;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #8e8e8e;
+}
+
+.title>svg {
+  height: 18px;
+  width: 18px;
+  margin-top: 2px;
+  color: #10b981;
+}
+
+.copy_toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border: 0.65px solid #c1c2c5;
+  margin-left: auto;
+  border-radius: 6px;
+  background-color: #202425;
+  color: #8e8e8e;
+  cursor: pointer;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border-bottom-right-radius: 8px;
+  border-bottom-left-radius: 8px;
+  padding: 1rem;
+  line-height: 19px;
+  color: white;
+  background-color: black;
+  white-space: nowrap;
+}
+
+.pre {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-wrap: nowrap;
+  white-space: pre;
+  background-color: transparent;
+  overflow: hidden;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+.pre code:nth-child(1) {
+  color: #575757;
+}
+
+.pre code:nth-child(2) {
+  color: #10b981;
+}
+
+.cmd {
+  height: 19px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
+
+.cmd::before {
+  content: attr(data-cmd);
+  position: relative;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  background-color: transparent;
+  animation: inputs 8s steps(22) infinite;
+}
+
+.cmd::after {
+  content: "";
+  position: relative;
+  display: block;
+  height: 100%;
+  overflow: hidden;
+  background-color: transparent;
+  border-right: 0.15em solid #10b981;
+  animation: cursor 0.5s step-end infinite alternate, blinking 0.5s infinite;
+}
+
+@keyframes blinking {
+
+  20%,
+  80% {
+    transform: scaleY(1);
+  }
+
+  50% {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes inputs {
+
+  0%,
+  100% {
+    width: 0;
+  }
+
+  10%,
+  90% {
+    width: 58px;
+  }
+
+  30%,
+  70% {
+    width: 250px;
+    max-width: max-content;
+  }
+}
+
+/* --- SVG Cursor Animations --- */
+#cursor,
+#box,
+#text {
+  cursor: pointer;
+}
+
+#cursor {
+  overflow: visible;
+  transform: translate3d(300px, 0, 0) scale(1);
+  transform-origin: center center;
+  transform-box: fill-box;
+  animation: cursor-move 5s ease infinite alternate;
+}
+
+@keyframes cursor-move {
+  0% {
+    opacity: 1;
+    transform: translate3d(300px, 0, 0) scale(1);
+  }
+
+  30% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translate3d(-200px, -200px, 0) scale(1);
+  }
+
+  65% {
+    opacity: 1;
+    transform: translate3d(-200px, -200px, 0) scale(0.95);
+  }
+
+  70% {
+    opacity: 1;
+    transform: translate3d(-200px, -200px, 0) scale(1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(-300px, -50px, 0) scale(1);
+  }
+}
+
+#box {
+  opacity: 1;
+  /* Removed animation that hides it */
+}
+
+@keyframes box-fade {
+
+  /* Deprecated: box should be always visible */
+  0%,
+  100% {
+    opacity: 1;
+  }
 }
