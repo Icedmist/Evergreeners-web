@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import dashboardMockup from "@/assets/dashboard-mockup.png";
+import zenModeGraphic from "@/assets/zen-mode-graphic.png";
 import { ScrewToggle } from "@/components/ui/screw-toggle";
 import { CosmicButton } from "@/components/ui/cosmic-button";
 import { TerminalSection } from "@/components/TerminalSection";
@@ -207,18 +208,15 @@ export default function Landing() {
                                     </li>
                                 </ul>
                             </div>
-                            <div className="relative order-1 md:order-2">
-                                {/* Abstract Art / Graphic */}
-                                <div className="aspect-square relative flex items-center justify-center">
-                                    <div className="absolute inset-0 border border-white/5 rounded-full animate-[spin_10s_linear_infinite]" />
-                                    <div className="absolute inset-4 border border-white/5 rounded-full animate-[spin_15s_linear_infinite_reverse]" />
-                                    <div className="absolute inset-12 border border-white/5 rounded-full animate-[spin_20s_linear_infinite]" />
-
-                                    <div className="relative z-10 text-center space-y-2">
-                                        <Focus className="w-16 h-16 text-primary mx-auto mb-4" />
-                                        <div className="text-2xl font-bold tracking-widest uppercase">Zen Mode</div>
-                                        <div className="text-xs text-muted-foreground font-mono">DISTRACTION FREE</div>
-                                    </div>
+                            <div className="relative order-1 md:order-2 flex justify-center">
+                                {/* Visual Mockup of Zen Mode */}
+                                <div className="relative w-full max-w-md aspect-square">
+                                    <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full opacity-20" />
+                                    <img
+                                        src={zenModeGraphic}
+                                        alt="Zen Mode Focus Visualization"
+                                        className="relative z-10 w-full h-full object-contain drop-shadow-2xl animate-float-slow [mask-image:radial-gradient(closest-side,black_50%,transparent_100%)] scale-110"
+                                    />
                                 </div>
                             </div>
                         </div>
