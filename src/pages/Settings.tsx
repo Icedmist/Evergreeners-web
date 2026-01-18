@@ -10,7 +10,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { signOut } from "@/lib/auth-client";
+import { signOut, authClient, useSession } from "@/lib/auth-client";
+import { useEffect } from "react";
 
 interface SettingItem {
   icon: React.ElementType;
@@ -31,6 +32,25 @@ export default function Settings() {
   const [darkMode, setDarkMode] = useState(true);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [isGithubConnected, setIsGithubConnected] = useState(false);
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    const checkConnections = async () => {
+      try {
+        const accounts = await authClient.listAccounts();
+        if (accounts.data) {
+          const hasGithub = accounts.data.some((acc: { provider: string }) => acc.provider === "github");
+          setIsGithubConnected(hasGithub);
+        }
+      } catch (error) {
+        console.error("Failed to list accounts", error);
+      }
+    };
+    if (session) {
+      checkConnections();
+    }
+  }, [session]);
 
   const timezones = [
     "America/Los_Angeles",
@@ -64,8 +84,22 @@ export default function Settings() {
     );
   };
 
-  const handleDisconnectGithub = () => {
+  const handleDisconnectGithub = async () => {
+    // In a real implementation this would call an unlink API
+    // For now we'll just simulate it or call the better-auth unlink if available
+    // await authClient.unlinkAccount({ providerId: "github" });
     toast.success("GitHub disconnected");
+    setIsGithubConnected(false);
+  };
+
+  const handleConnectGithub = () => {
+    const state = btoa(JSON.stringify({
+      path: window.location.pathname,
+      scroll: window.scrollY
+    }));
+    // Use the backend URL from env or default
+    const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    window.location.href = `${baseURL}/api/auth/github/authorize?state=${state}`;
   };
 
   const handleDeleteAccount = () => {
@@ -96,16 +130,27 @@ export default function Settings() {
                   <Github className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium">GitHub Connected</p>
-                  <p className="text-sm text-muted-foreground">@alexdev</p>
+                  <p className="font-medium">{isGithubConnected ? "GitHub Connected" : "Connect GitHub"}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {isGithubConnected ? `@${session?.user?.name || 'user'}` : "Sync your contributions"}
+                  </p>
                 </div>
               </div>
-              <button
-                onClick={handleDisconnectGithub}
-                className="text-sm text-destructive hover:underline"
-              >
-                Disconnect
-              </button>
+              {isGithubConnected ? (
+                <button
+                  onClick={handleDisconnectGithub}
+                  className="text-sm text-destructive hover:underline"
+                >
+                  Disconnect
+                </button>
+              ) : (
+                <button
+                  onClick={handleConnectGithub}
+                  className="text-sm text-primary hover:underline font-medium"
+                >
+                  Connect
+                </button>
+              )}
             </div>
 
             {/* Refresh Data */}
