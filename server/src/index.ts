@@ -95,7 +95,7 @@ server.register(async (instance) => {
                 // If not logged in, we can't link. 
                 // For this use case, we assume they initiated from settings page while logged in.
                 // Alternatively we could create a new user (login via github), but req says "linked to current user"
-                reply.redirect('http://localhost:5173/login?error=not_authenticated'); // Fallback to login
+                reply.redirect('https://evergreeners.vercel.app/login?error=not_authenticated'); // Fallback to login
                 return;
             }
 
@@ -112,7 +112,7 @@ server.register(async (instance) => {
                 if (existingAccount.userId !== session.user.id) {
                     // Account already linked to another user
                     // Handle error or steal logic? Let's just error for safety
-                    reply.redirect('http://localhost:5173/settings?error=github_account_already_linked');
+                    reply.redirect('https://evergreeners.vercel.app/settings?error=github_account_already_linked');
                     return;
                 }
                 // Update token
@@ -158,7 +158,7 @@ server.register(async (instance) => {
 
         } catch (err) {
             console.error(err);
-            reply.redirect('http://localhost:5173/settings?error=github_callback_failed');
+            reply.redirect('https://evergreeners.vercel.app/settings?error=github_callback_failed');
         }
     });
 
