@@ -101,10 +101,17 @@ export default function Profile() {
     initProfile();
   }, [session]);
 
+  const getBaseURL = (url: string) => {
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    if (url.includes("localhost") || url.includes("127.0.0.1")) return `http://${url}`;
+    return `https://${url}`;
+  };
+
   const syncGithubData = async () => {
     try {
       toast.info("Syncing GitHub data...");
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/user/sync-github`, {
+      const baseUrl = getBaseURL(import.meta.env.VITE_API_URL || 'http://localhost:3000');
+      const res = await fetch(`${baseUrl}/api/user/sync-github`, {
         method: "POST",
         credentials: "include"
       });
@@ -145,7 +152,8 @@ export default function Profile() {
   /* Save Profile Function */
   const handleSaveProfile = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/user/profile`, {
+      const baseUrl = getBaseURL(import.meta.env.VITE_API_URL || 'http://localhost:3000');
+      const res = await fetch(`${baseUrl}/api/user/profile`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // Important for sending cookies!
@@ -178,7 +186,8 @@ export default function Profile() {
     setIsPublic(newStatus);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/user/profile`, {
+      const baseUrl = getBaseURL(import.meta.env.VITE_API_URL || 'http://localhost:3000');
+      const res = await fetch(`${baseUrl}/api/user/profile`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // Important for sending cookies!

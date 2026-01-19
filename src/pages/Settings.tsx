@@ -52,7 +52,8 @@ export default function Settings() {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/user/profile`, {
+        const baseUrl = getBaseURL(import.meta.env.VITE_API_URL || 'http://localhost:3000');
+        const res = await fetch(`${baseUrl}/api/user/profile`, {
           credentials: "include"
         });
         if (res.ok) {
@@ -80,10 +81,18 @@ export default function Settings() {
     "Australia/Sydney",
   ];
 
+  /* Helper to ensure correct URL in production */
+  const getBaseURL = (url: string) => {
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    if (url.includes("localhost") || url.includes("127.0.0.1")) return `http://${url}`;
+    return `https://${url}`;
+  };
+
   const handleRefreshData = async () => {
     toast.promise(
       (async () => {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/user/sync-github`, {
+        const baseUrl = getBaseURL(import.meta.env.VITE_API_URL || 'http://localhost:3000');
+        const res = await fetch(`${baseUrl}/api/user/sync-github`, {
           method: "POST",
           credentials: "include"
         });
