@@ -10,18 +10,34 @@ export const users = mySchema.table('users', {
     image: text('image'),
     createdAt: timestamp('created_at').notNull(),
     updatedAt: timestamp('updated_at').notNull(),
-    role: text('role').default('user'), // Custom field
+    role: text('role').default('user'),
+    
+    // User-editable profile fields
     username: text('username').unique(),
     bio: text('bio'),
     location: text('location'),
     website: text('website'),
     isPublic: boolean('is_public').default(true).notNull(),
     anonymousName: text('anonymous_name'),
+    
+    // GitHub connection & sync tracking
+    isGithubConnected: boolean('is_github_connected').default(false),
+    githubUsername: text('github_username'),
+    githubSyncedAt: timestamp('github_synced_at'),
+    githubSyncEnabled: boolean('github_sync_enabled').default(true),
+    lastProfileEditAt: timestamp('last_profile_edit_at'),
+    
+    // GitHub synced data (read-only, updated on sync)
+    githubStreak: integer('github_streak').default(0),
+    githubTotalCommits: integer('github_total_commits').default(0),
+    githubTodayCommits: integer('github_today_commits').default(0),
+    githubContributionData: jsonb('github_contribution_data'),
+    
+    // Legacy fields (deprecated, kept for backwards compatibility)
     streak: integer('streak').default(0),
     totalCommits: integer('total_commits').default(0),
-    todayCommits: integer('today_commits').default(0), // New field for daily tracking
-    contributionData: jsonb('contribution_data'), // Store full calendar data
-    isGithubConnected: boolean('is_github_connected').default(false),
+    todayCommits: integer('today_commits').default(0),
+    contributionData: jsonb('contribution_data'),
 });
 
 export const sessions = mySchema.table('sessions', {

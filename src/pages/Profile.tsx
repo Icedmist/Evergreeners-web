@@ -53,16 +53,22 @@ export default function Profile() {
     joinDate: "Joined recently",
     image: "",
     anonymousName: "",
+    githubStreak: 0,
+    githubTotalCommits: 0,
+    githubTodayCommits: 0,
+    githubContributionData: [] as any[],
+    githubSyncedAt: null as Date | null,
+    // Legacy fields (for backwards compatibility)
     streak: 0,
     totalCommits: 0,
-    todayCommits: 0, // New field
-    contributionData: [] as any[] // New field
+    todayCommits: 0,
+    contributionData: [] as any[]
   });
 
   const stats = [
-    { label: "Current Streak", value: profile.streak?.toString() || "0", icon: Flame },
-    { label: "Commits Today", value: (profile.todayCommits || 0).toString(), icon: GitCommit },
-    { label: "Total Commits", value: (profile.totalCommits || 0).toLocaleString(), icon: Trophy },
+    { label: "Current Streak", value: (profile.githubStreak || profile.streak || 0).toString(), icon: Flame },
+    { label: "Commits Today", value: (profile.githubTodayCommits || profile.todayCommits || 0).toString(), icon: GitCommit },
+    { label: "Total Commits", value: ((profile.githubTotalCommits || profile.totalCommits || 0)).toLocaleString(), icon: Trophy },
     { label: "Best Rank", value: "#24", icon: Target },
   ];
 
@@ -86,6 +92,12 @@ export default function Profile() {
           joinDate: "Joined " + new Date(user.createdAt || Date.now()).toLocaleDateString(),
           image: user.image || "",
           anonymousName: user.anonymousName || "",
+          githubStreak: user.githubStreak || user.streak || 0,
+          githubTotalCommits: user.githubTotalCommits || user.totalCommits || 0,
+          githubTodayCommits: user.githubTodayCommits || user.todayCommits || 0,
+          githubContributionData: user.githubContributionData || user.contributionData || [],
+          githubSyncedAt: user.githubSyncedAt,
+          // Legacy fields
           streak: user.streak || 0,
           totalCommits: user.totalCommits || 0,
           todayCommits: user.todayCommits || 0,
@@ -110,9 +122,15 @@ export default function Profile() {
               website: freshUser.website || prev.website,
               image: freshUser.image || prev.image,
               anonymousName: freshUser.anonymousName || prev.anonymousName,
-              streak: freshUser.streak,
-              totalCommits: freshUser.totalCommits,
-              todayCommits: freshUser.todayCommits,
+              githubStreak: freshUser.githubStreak || freshUser.streak || prev.githubStreak,
+              githubTotalCommits: freshUser.githubTotalCommits || freshUser.totalCommits || prev.githubTotalCommits,
+              githubTodayCommits: freshUser.githubTodayCommits || freshUser.todayCommits || prev.githubTodayCommits,
+              githubContributionData: freshUser.githubContributionData || freshUser.contributionData || prev.githubContributionData,
+              githubSyncedAt: freshUser.githubSyncedAt || prev.githubSyncedAt,
+              // Legacy
+              streak: freshUser.streak || prev.streak,
+              totalCommits: freshUser.totalCommits || prev.totalCommits,
+              todayCommits: freshUser.todayCommits || prev.todayCommits,
               contributionData: freshUser.contributionData || prev.contributionData
             }));
             // Also update the edit form state so it doesn't revert if they open it
@@ -151,7 +169,7 @@ export default function Profile() {
     try {
       if (!silent) toast.info("Syncing GitHub data...");
       const baseUrl = getBaseURL(import.meta.env.VITE_API_URL || 'http://localhost:3000');
-      const res = await fetch(`${baseUrl}/api/user/sync-github`, {
+      const res = await fetch(`${baseUrl}/api/user/sync-github-cached`, {
         method: "POST",
         credentials: "include"
       });
@@ -160,13 +178,14 @@ export default function Profile() {
         const data = await res.json();
         setProfile(prev => ({
           ...prev,
-          username: data.username || prev.username,
-          streak: data.streak,
-          totalCommits: data.totalCommits,
-          todayCommits: data.todayCommits,
-          contributionData: data.contributionData || []
+          username: data.data?.username || prev.username,
+          githubStreak: data.data?.streak,
+          githubTotalCommits: data.data?.totalCommits,
+          githubTodayCommits: data.data?.todayCommits,
+          githubContributionData: data.data?.contributionData || [],
+          githubSyncedAt: data.data?.syncedAt
         }));
-        if (!silent) toast.success("GitHub data synced!");
+        if (!silent) toast.success(data.cached ? "Using cached GitHub data" : "GitHub data synced!");
       } else {
         console.error("Sync failed with status:", res.status);
       }

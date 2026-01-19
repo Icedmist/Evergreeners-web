@@ -8,6 +8,8 @@ import { toNodeHandler } from 'better-auth/node';
 import { db } from './db/index.js';
 import * as schema from './db/schema.js';
 import { eq, and } from 'drizzle-orm';
+import { initializeSchedulers, syncUserGithubData, isSyncNeeded } from './utils/scheduler.js';
+import { getGithubContributions } from './utils/github-sync.js';
 
 const server = fastify({
     logger: true,
@@ -29,82 +31,6 @@ server.register(cors, {
 });
 
 // GitHub OAuth is handled by better-auth in separate adapter
-
-async function getGithubContributions(username: string, token: string) {
-    const query = `
-        query($username: String!) {
-            user(login: $username) {
-                contributionsCollection {
-                    contributionCalendar {
-                        totalContributions
-                        weeks {
-                            contributionDays {
-                                contributionCount
-                                date
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    `;
-
-    const response = await fetch("https://api.github.com/graphql", {
-        method: "POST",
-        headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-            "User-Agent": "Evergreeners-App"
-        },
-        body: JSON.stringify({ query, variables: { username } })
-    });
-
-    if (!response.ok) {
-        throw new Error("GitHub GraphQL API failed");
-    }
-
-    const data: any = await response.json();
-    if (data.errors) {
-        throw new Error(data.errors[0].message);
-    }
-
-    const calendar = data.data.user.contributionsCollection.contributionCalendar;
-    const totalCommits = calendar.totalContributions;
-
-    const allDays = calendar.weeks
-        .flatMap((w: any) => w.contributionDays)
-        .reverse();
-
-    let currentStreak = 0;
-    const todayStr = new Date().toISOString().split('T')[0];
-    const yesterdayStr = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-
-    // Check if user has contributed today or yesterday to start the streak count
-    let startIndex = allDays.findIndex((d: any) => d.contributionCount > 0);
-
-    // Calculate Today's Commits
-    const todayData = allDays.find((d: any) => d.date === todayStr);
-    const todayCommits = todayData ? todayData.contributionCount : 0;
-
-    if (startIndex !== -1) {
-        const lastContribDate = allDays[startIndex].date;
-        // If the last contribution was more than 1 day ago, the current streak is 0
-        if (lastContribDate < yesterdayStr && lastContribDate !== todayStr) {
-            currentStreak = 0;
-        } else {
-            // Count backwards
-            for (let i = startIndex; i < allDays.length; i++) {
-                if (allDays[i].contributionCount > 0) {
-                    currentStreak++;
-                } else {
-                    break;
-                }
-            }
-        }
-    }
-
-    return { totalCommits, currentStreak, todayCommits, contributionCalendar: allDays };
-}
 
 // Auth Routes Scope (No Body Parsing for better-auth)
 server.register(async (instance) => {
@@ -184,20 +110,95 @@ server.register(async (instance) => {
             // 3. Fetch Contributions (Streak & Total Commits)
             const { totalCommits, currentStreak, todayCommits, contributionCalendar } = await getGithubContributions(ghUser.login, account[0].accessToken);
 
-            // 4. Update User Profile
+            // 4. Update User Profile with GitHub-specific fields
             await db.update(schema.users)
                 .set({
-                    // Only update stats, preserve user's custom profile data
-                    streak: currentStreak,
-                    totalCommits: totalCommits,
-                    todayCommits: todayCommits,
-                    contributionData: contributionCalendar,
+                    githubUsername: ghUser.login,
+                    githubStreak: currentStreak,
+                    githubTotalCommits: totalCommits,
+                    githubTodayCommits: todayCommits,
+                    githubContributionData: contributionCalendar,
+                    githubSyncedAt: new Date(),
                     isGithubConnected: true,
                     updatedAt: new Date()
                 })
                 .where(eq(schema.users.id, userId));
 
-            return { success: true, username: ghUser.login, streak: currentStreak, totalCommits, todayCommits, contributionData: contributionCalendar };
+            return { 
+                success: true, 
+                username: ghUser.login, 
+                streak: currentStreak, 
+                totalCommits, 
+                todayCommits, 
+                contributionData: contributionCalendar,
+                syncedAt: new Date()
+            };
+        } catch (error) {
+            console.error(error);
+            return reply.status(500).send({ message: "Failed to sync with GitHub" });
+        }
+    });
+
+    // Sync with cache check (respects rate limits)
+    instance.post('/api/user/sync-github-cached', async (req, reply) => {
+        const headers = new Headers();
+        Object.entries(req.headers).forEach(([key, value]) => {
+            if (Array.isArray(value)) {
+                value.forEach(v => headers.append(key, v));
+            } else if (typeof value === 'string') {
+                headers.set(key, value);
+            }
+        });
+
+        const session = await auth.api.getSession({
+            headers
+        });
+
+        if (!session) {
+            return reply.status(401).send({ message: "Unauthorized" });
+        }
+
+        const userId = session.session.userId;
+
+        try {
+            const user = await db.select().from(schema.users).where(eq(schema.users.id, userId)).limit(1);
+            if (!user.length) {
+                return reply.status(404).send({ message: "User not found" });
+            }
+
+            // Check if sync is needed (cache for 1 hour)
+            if (!isSyncNeeded(user[0].githubSyncedAt, 60)) {
+                return {
+                    success: true,
+                    cached: true,
+                    message: "Using cached data",
+                    data: {
+                        username: user[0].githubUsername,
+                        streak: user[0].githubStreak,
+                        totalCommits: user[0].githubTotalCommits,
+                        todayCommits: user[0].githubTodayCommits,
+                        syncedAt: user[0].githubSyncedAt
+                    }
+                };
+            }
+
+            // Perform sync
+            await syncUserGithubData(userId);
+
+            const updatedUser = await db.select().from(schema.users).where(eq(schema.users.id, userId)).limit(1);
+
+            return {
+                success: true,
+                cached: false,
+                message: "Synced fresh data",
+                data: {
+                    username: updatedUser[0]?.githubUsername,
+                    streak: updatedUser[0]?.githubStreak,
+                    totalCommits: updatedUser[0]?.githubTotalCommits,
+                    todayCommits: updatedUser[0]?.githubTodayCommits,
+                    syncedAt: updatedUser[0]?.githubSyncedAt
+                }
+            };
         } catch (error) {
             console.error(error);
             return reply.status(500).send({ message: "Failed to sync with GitHub" });
@@ -305,6 +306,9 @@ const start = async () => {
         const port = Number(process.env.PORT) || 3000;
         await server.listen({ port, host: '0.0.0.0' });
         console.log(`Server listening on port ${port}`);
+        
+        // Initialize scheduled tasks
+        initializeSchedulers();
     } catch (err) {
         server.log.error(err);
         process.exit(1);

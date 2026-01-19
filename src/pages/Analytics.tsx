@@ -7,12 +7,14 @@ import {
   BarChart, Bar, XAxis, YAxis, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell, AreaChart, Area
 } from "recharts";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { TrendingUp, TrendingDown, Calendar, GitCommit, GitPullRequest, Clock } from "lucide-react";
+import { useSession } from "@/lib/auth-client";
+import { toast } from "sonner";
 
-// Mock data
-const monthlyData = [
+// Mockup data (used when GitHub data not available)
+const mockMonthlyData = [
   { month: "Jan", commits: 87 },
   { month: "Feb", commits: 125 },
   { month: "Mar", commits: 98 },
@@ -21,7 +23,7 @@ const monthlyData = [
   { month: "Jun", commits: 145 },
 ];
 
-const weeklyCommits = [
+const mockWeeklyCommits = [
   { day: "Mon", commits: 12 },
   { day: "Tue", commits: 18 },
   { day: "Wed", commits: 8 },
@@ -31,7 +33,7 @@ const weeklyCommits = [
   { day: "Sun", commits: 9 },
 ];
 
-const hourlyActivity = [
+const mockHourlyActivity = [
   { hour: "6am", activity: 5 },
   { hour: "9am", activity: 45 },
   { hour: "12pm", activity: 30 },
@@ -41,27 +43,128 @@ const hourlyActivity = [
   { hour: "12am", activity: 10 },
 ];
 
-const languageData = [
+const mockLanguageData = [
   { name: "TypeScript", value: 45, color: "hsl(142, 71%, 45%)" },
   { name: "JavaScript", value: 25, color: "hsl(142, 71%, 35%)" },
   { name: "Python", value: 15, color: "hsl(142, 71%, 55%)" },
   { name: "Other", value: 15, color: "hsl(142, 71%, 25%)" },
 ];
 
-const activityData = Array.from({ length: 365 }, () =>
+const mockActivityData = Array.from({ length: 365 }, () =>
   Math.random() > 0.25 ? Math.floor(Math.random() * 5) : 0
 );
+
+/**
+ * Generate weekly data from contribution calendar
+ */
+function generateWeeklyDataFromContributions(contributionData: any[]): any[] {
+  const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const weeklyStats: Record<string, number> = {
+    Sun: 0, Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0
+  };
+
+  contributionData.forEach((day: any) => {
+    if (day.date && day.contributionCount !== undefined) {
+      const date = new Date(day.date);
+      const dayName = weekDays[date.getDay()];
+      weeklyStats[dayName] += day.contributionCount;
+    }
+  });
+
+  return weekDays.map(day => ({
+    day,
+    commits: weeklyStats[day] || 0
+  }));
+}
+
+/**
+ * Generate monthly data from contribution calendar (last 6 months)
+ */
+function generateMonthlyDataFromContributions(contributionData: any[]): any[] {
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthlyStats: Record<string, number> = {};
+
+  contributionData.forEach((day: any) => {
+    if (day.date && day.contributionCount !== undefined) {
+      const date = new Date(day.date);
+      const monthKey = monthNames[date.getMonth()];
+      monthlyStats[monthKey] = (monthlyStats[monthKey] || 0) + day.contributionCount;
+    }
+  });
+
+  // Get last 6 months
+  const now = new Date();
+  const lastSixMonths = [];
+  for (let i = 5; i >= 0; i--) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const monthName = monthNames[date.getMonth()];
+    lastSixMonths.push({
+      month: monthName,
+      commits: monthlyStats[monthName] || 0
+    });
+  }
+
+  return lastSixMonths;
+}
 
 type TimeRange = "week" | "month" | "year";
 
 export default function Analytics() {
+  const { data: session } = useSession();
   const [timeRange, setTimeRange] = useState<TimeRange>("month");
+  const [isLoading, setIsLoading] = useState(true);
+  const [githubData, setGithubData] = useState<any>(null);
+  const [weeklyData, setWeeklyData] = useState(mockWeeklyCommits);
+  const [monthlyData, setMonthlyData] = useState(mockMonthlyData);
+
+  // Load GitHub data
+  useEffect(() => {
+    const loadGithubData = async () => {
+      try {
+        if (!session?.user) {
+          setIsLoading(false);
+          return;
+        }
+
+        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+        const apiUrl = baseUrl.startsWith('http') ? baseUrl : `http://${baseUrl}`;
+
+        const res = await fetch(`${apiUrl}/api/user/profile`, {
+          credentials: 'include'
+        });
+
+        if (res.ok) {
+          const { user } = await res.json();
+          setGithubData(user);
+
+          // Generate charts from contribution data
+          if (user.githubContributionData && user.githubContributionData.length > 0) {
+            setWeeklyData(generateWeeklyDataFromContributions(user.githubContributionData));
+            setMonthlyData(generateMonthlyDataFromContributions(user.githubContributionData));
+          } else if (user.contributionData && user.contributionData.length > 0) {
+            setWeeklyData(generateWeeklyDataFromContributions(user.contributionData));
+            setMonthlyData(generateMonthlyDataFromContributions(user.contributionData));
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load GitHub data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadGithubData();
+  }, [session]);
+
+  const totalCommits = githubData?.githubTotalCommits || githubData?.totalCommits || 2847;
+  const todayCommits = githubData?.githubTodayCommits || githubData?.todayCommits || 0;
+  const streak = githubData?.githubStreak || githubData?.streak || 24;
 
   const stats = [
-    { label: "Total Commits", value: "2,847", change: "+12%", trend: "up", icon: GitCommit },
+    { label: "Total Commits", value: totalCommits.toLocaleString(), change: "+12%", trend: "up", icon: GitCommit },
     { label: "Pull Requests", value: "156", change: "+8%", trend: "up", icon: GitPullRequest },
     { label: "Active Days", value: "284", change: "-3%", trend: "down", icon: Calendar },
-    { label: "Avg. Daily", value: "8.2", change: "+5%", trend: "up", icon: Clock },
+    { label: "Current Streak", value: streak.toString(), change: "+5%", trend: "up", icon: Clock },
   ];
 
   return (
@@ -158,7 +261,7 @@ export default function Analytics() {
         <Section title="Weekly Distribution" className="animate-fade-up" style={{ animationDelay: "0.2s" }}>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={weeklyCommits}>
+              <BarChart data={weeklyData}>
                 <XAxis
                   dataKey="day"
                   axisLine={false}
@@ -181,14 +284,13 @@ export default function Analytics() {
           <Section title="Peak Hours" className="animate-fade-up" style={{ animationDelay: "0.25s" }}>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={hourlyActivity}>
+                <LineChart data={mockHourlyActivity}>
                   <XAxis
                     dataKey="hour"
                     axisLine={false}
                     tickLine={false}
                     tick={{ fill: 'hsl(0, 0%, 55%)', fontSize: 10 }}
-                  />
-                  <Line
+                  />\n                  <Line
                     type="monotone"
                     dataKey="activity"
                     stroke="hsl(142, 71%, 45%)"
@@ -206,13 +308,13 @@ export default function Analytics() {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={languageData}
+                    data={mockLanguageData}
                     innerRadius={50}
                     outerRadius={70}
                     paddingAngle={2}
                     dataKey="value"
                   >
-                    {languageData.map((entry, index) => (
+                    {mockLanguageData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
@@ -220,7 +322,7 @@ export default function Analytics() {
               </ResponsiveContainer>
             </div>
             <div className="flex flex-wrap gap-3 justify-center mt-2">
-              {languageData.map((lang) => (
+              {mockLanguageData.map((lang) => (
                 <div key={lang.name} className="flex items-center gap-2 text-xs">
                   <div className="w-2 h-2 rounded-full" style={{ backgroundColor: lang.color }} />
                   <span className="text-muted-foreground">{lang.name}</span>
@@ -232,7 +334,7 @@ export default function Analytics() {
 
         {/* Contribution Heatmap */}
         <Section title="Year in Code" className="animate-fade-up" style={{ animationDelay: "0.35s" }}>
-          <ActivityGrid data={activityData} />
+          <ActivityGrid data={mockActivityData} />
           <div className="flex items-center justify-end gap-2 mt-3">
             <span className="text-xs text-muted-foreground">Less</span>
             <div className="flex gap-1">
