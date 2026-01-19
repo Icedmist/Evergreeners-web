@@ -126,9 +126,9 @@ export default function Profile() {
     return `https://${url}`;
   };
 
-  const syncGithubData = async () => {
+  const syncGithubData = async (silent = false) => {
     try {
-      toast.info("Syncing GitHub data...");
+      if (!silent) toast.info("Syncing GitHub data...");
       const baseUrl = getBaseURL(import.meta.env.VITE_API_URL || 'http://localhost:3000');
       const res = await fetch(`${baseUrl}/api/user/sync-github`, {
         method: "POST",
@@ -144,7 +144,7 @@ export default function Profile() {
           totalCommits: data.totalCommits,
           todayCommits: data.todayCommits
         }));
-        toast.success("GitHub data synced!");
+        if (!silent) toast.success("GitHub data synced!");
       } else {
         console.error("Sync failed with status:", res.status);
       }
@@ -153,10 +153,10 @@ export default function Profile() {
     }
   };
 
-  // Auto-sync effect
+  // Auto-sync effect: Always sync on load if connected (Real-time feel)
   useEffect(() => {
-    if (isGithubConnected && profile.streak === 0 && profile.totalCommits === 0) {
-      syncGithubData();
+    if (isGithubConnected) {
+      syncGithubData(true);
     }
   }, [isGithubConnected]);
 
