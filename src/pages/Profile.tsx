@@ -27,12 +27,7 @@ const achievements = [
   { name: "Contributor", icon: "🤝", earned: true },
 ];
 
-const stats = [
-  { label: "Current Streak", value: "47", icon: Flame },
-  { label: "Total Commits", value: "2.8k", icon: GitCommit },
-  { label: "Goals Hit", value: "12", icon: Target },
-  { label: "Best Rank", value: "#24", icon: Trophy },
-];
+
 
 import { useSession, signIn, authClient } from "@/lib/auth-client";
 import { useEffect } from "react";
@@ -55,8 +50,18 @@ export default function Profile() {
     website: "",
     joinDate: "Joined recently",
     image: "",
-    anonymousName: ""
+    anonymousName: "",
+    streak: 0,
+    totalCommits: 0
   });
+
+  const stats = [
+    { label: "Current Streak", value: profile.streak?.toString() || "0", icon: Flame },
+    { label: "Total Commits", value: (profile.totalCommits || 0).toLocaleString(), icon: GitCommit },
+    { label: "Goals Hit", value: "12", icon: Target },
+    { label: "Best Rank", value: "#24", icon: Trophy },
+  ];
+
   const [editedProfile, setEditedProfile] = useState(profile);
 
   /* Effect: Load session data into state and check connections */
@@ -74,10 +79,12 @@ export default function Profile() {
           website: user.website || "",
           joinDate: "Joined " + new Date(user.createdAt || Date.now()).toLocaleDateString(),
           image: user.image || "",
-          anonymousName: user.anonymousName || ""
+          anonymousName: user.anonymousName || "",
+          streak: user.streak || 0,
+          totalCommits: user.totalCommits || 0
         }));
         setIsPublic(user.isPublic !== false);
-        setEditedProfile(prev => ({ ...prev, ...user })); // Ensure edit form has data
+        setEditedProfile(prev => ({ ...prev, ...user }));
 
         // Check connected accounts
         try {

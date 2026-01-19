@@ -1,4 +1,4 @@
-import { pgSchema, serial, text, timestamp, boolean, jsonb } from 'drizzle-orm/pg-core';
+import { pgSchema, serial, text, timestamp, boolean, jsonb, integer } from 'drizzle-orm/pg-core';
 
 export const mySchema = pgSchema('evergreeners');
 
@@ -17,6 +17,8 @@ export const users = mySchema.table('users', {
     website: text('website'),
     isPublic: boolean('is_public').default(true).notNull(),
     anonymousName: text('anonymous_name'),
+    streak: integer('streak').default(0),
+    totalCommits: integer('total_commits').default(0),
 });
 
 export const sessions = mySchema.table('sessions', {

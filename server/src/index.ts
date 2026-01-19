@@ -33,6 +33,79 @@ server.register(cors, {
 
 // GitHub OAuth is handled by better-auth in separate adapter
 
+async function getGithubContributions(username: string, token: string) {
+    const query = `
+        query($username: String!) {
+            user(login: $username) {
+                contributionsCollection {
+                    contributionCalendar {
+                        totalContributions
+                        weeks {
+                            contributionDays {
+                                contributionCount
+                                date
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    `;
+
+    const response = await fetch("https://api.github.com/graphql", {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            "User-Agent": "Evergreeners-App"
+        },
+        body: JSON.stringify({ query, variables: { username } })
+    });
+
+    if (!response.ok) {
+        throw new Error("GitHub GraphQL API failed");
+    }
+
+    const data: any = await response.json();
+    if (data.errors) {
+        throw new Error(data.errors[0].message);
+    }
+
+    const calendar = data.data.user.contributionsCollection.contributionCalendar;
+    const totalCommits = calendar.totalContributions;
+
+    // Flatten all days into a single array, reversed (latest first)
+    const allDays = calendar.weeks
+        .flatMap((w: any) => w.contributionDays)
+        .reverse();
+
+    let currentStreak = 0;
+    const todayStr = new Date().toISOString().split('T')[0];
+    const yesterdayStr = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+
+    // Check if user has contributed today or yesterday to start the streak count
+    let startIndex = allDays.findIndex((d: any) => d.contributionCount > 0);
+
+    if (startIndex !== -1) {
+        const lastContribDate = allDays[startIndex].date;
+        // If the last contribution was more than 1 day ago, the current streak is 0
+        if (lastContribDate < yesterdayStr && lastContribDate !== todayStr) {
+            currentStreak = 0;
+        } else {
+            // Count backwards
+            for (let i = startIndex; i < allDays.length; i++) {
+                if (allDays[i].contributionCount > 0) {
+                    currentStreak++;
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+
+    return { totalCommits, currentStreak };
+}
+
 // Auth Routes
 server.register(async (instance) => {
     // Prevent Fastify from parsing the body so better-auth can handle the raw stream
@@ -101,7 +174,10 @@ server.register(async (instance) => {
             if (!ghRes.ok) throw new Error("Failed to fetch from GitHub");
             const ghUser = await ghRes.json();
 
-            // 3. Update User Profile
+            // 3. Fetch Contributions (Streak & Total Commits)
+            const { totalCommits, currentStreak } = await getGithubContributions(ghUser.login, account[0].accessToken);
+
+            // 4. Update User Profile
             await db.update(schema.users)
                 .set({
                     username: ghUser.login,   // Force update username
@@ -110,11 +186,13 @@ server.register(async (instance) => {
                     bio: ghUser.bio,
                     location: ghUser.location,
                     website: ghUser.blog,
+                    streak: currentStreak,
+                    totalCommits: totalCommits,
                     updatedAt: new Date()
                 })
                 .where(eq(schema.users.id, userId));
 
-            return { success: true, username: ghUser.login };
+            return { success: true, username: ghUser.login, streak: currentStreak, totalCommits };
         } catch (error) {
             console.error(error);
             return reply.status(500).send({ message: "Failed to sync with GitHub" });
