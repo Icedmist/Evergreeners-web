@@ -80,10 +80,16 @@ export function setupCronJobs() {
             let sent = 0;
             let failed = 0;
 
+            // Process in small batches or with a slight delay to avoid rate limits
             for (const { user } of usersToNotify) {
-                if (!user.email) { failed++; continue; }
+                if (!user.email) {
+                    console.log(`Skipping user ${user.username || user.id}: No email address.`);
+                    failed++;
+                    continue;
+                }
 
                 try {
+                    console.log(`Attempting to send email to ${user.email}...`);
                     await sendDailyDigestEmail({
                         to: user.email,
                         name: user.name || user.username || 'Dev',
@@ -93,7 +99,11 @@ export function setupCronJobs() {
                         totalCommits: user.totalCommits || 0,
                         weeklyCommits: user.weeklyCommits || 0,
                     });
+                    console.log(`Successfully sent email to ${user.email}`);
                     sent++;
+                    
+                    // Increase delay to 600ms to respect Resend's 2 requests/sec limit
+                    await new Promise(resolve => setTimeout(resolve, 600));
                 } catch (err) {
                     console.error(`Failed to send digest to ${user.email}:`, err);
                     failed++;
