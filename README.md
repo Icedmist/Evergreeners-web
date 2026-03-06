@@ -1,8 +1,8 @@
-<img width="200" height="200" alt="contribution_logo (1)" src="https://github.com/user-attachments/assets/263c80c4-998d-4be9-90f3-2aeac3ae19e8" />
-
-# 🌲 Evergreeners
-
-**Track your consistency. Grow your legacy.**
+<div align="center">
+  <img src="public/icon.png" width="120" height="120" alt="Evergreeners Logo" />
+  <h1>Evergreeners</h1>
+  <p><strong>Track your consistency. Grow your legacy.</strong></p>
+</div>
 
 Evergreeners is a developer-focused habit and contribution tracking application — a **digital garden** where consistency compounds over time. It helps users visualize daily activity, maintain streaks, and build a lasting record of effort.
 
