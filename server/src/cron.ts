@@ -56,8 +56,8 @@ export function setupCronJobs() {
         }
     });
 
-    // ── Daily digest at 12:50 AM (TEMPORARY TEST) ────────────────────────────
-    cron.schedule('50 0 * * *', async () => {
+    // ── Daily digest at 01:07 AM (TEMPORARY TEST) ────────────────────────────
+    cron.schedule('7 1 * * *', async () => {
         console.log("Running daily digest emails...");
         try {
             const usersToNotify = await db.select({ user: users, account: accounts })
