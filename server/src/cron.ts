@@ -56,8 +56,12 @@ export function setupCronJobs() {
         }
     });
 
-    // ── Daily digest at 12:20 AM (TEMPORARY TEST) ────────────────────────────
-    cron.schedule('20 0 * * *', async () => {
+    // ── Daily digest at 7 PM ──────────────────────────────────────────────────
+    // Sends to every GitHub-connected user with emailNotifications enabled.
+    // Two modes — the email function handles which variant to render:
+    //   - todayCommits > 0  → celebration / summary card
+    //   - todayCommits === 0 → streak-at-risk warning
+    cron.schedule('0 19 * * *', async () => {
         console.log("Running daily digest emails...");
         try {
             const usersToNotify = await db.select({ user: users, account: accounts })
