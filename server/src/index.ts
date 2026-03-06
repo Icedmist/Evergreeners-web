@@ -129,6 +129,89 @@ server.register(async (instance) => {
 
 // API Routes Scope (Standard JSON Parsing)
 server.register(async (instance) => {
+    // GitHub Webhook Endpoint for real-time updates
+    instance.post('/api/webhooks/github', async (req, reply) => {
+        const payload = req.body as any;
+        const githubUsername = payload?.sender?.login;
+
+        if (!githubUsername) {
+            return reply.status(400).send({ message: "Invalid payload: sender missing" });
+        }
+
+        console.log(`Webhook received for GitHub user: ${githubUsername}`);
+
+        try {
+            // 1. Find the user in our DB by their GitHub username
+            const userRecord = await db.select()
+                .from(schema.users)
+                .where(eq(schema.users.username, githubUsername))
+                .limit(1);
+
+            if (userRecord.length === 0) {
+                console.log(`No local user found for GitHub username: ${githubUsername}`);
+                return reply.status(200).send({ message: "User not found locally, skipping sync" });
+            }
+
+            const userId = userRecord[0].id;
+
+            // 2. Get the GitHub account/token for this user
+            const account = await db.select().from(schema.accounts)
+                .where(and(
+                    eq(schema.accounts.userId, userId),
+                    eq(schema.accounts.providerId, 'github')
+                ))
+                .limit(1);
+
+            if (!account.length || !account[0].accessToken) {
+                console.log(`No connected GitHub account/token for user: ${userId}`);
+                return reply.status(200).send({ message: "No GitHub token found, skipping sync" });
+            }
+
+            // 3. Trigger a background sync (don't block the webhook response)
+            // We reuse the logic from sync-github but as a background process
+            (async () => {
+                try {
+                    console.log(`Background sync started for user ${userId} via webhook`);
+                    const { 
+                        totalCommits, currentStreak, todayCommits, yesterdayCommits, 
+                        weeklyCommits, activeDays, totalProjects, projects, 
+                        contributionCalendar, totalPullRequests, languages 
+                    } = await getGithubContributions(githubUsername, account[0].accessToken!);
+
+                    await db.update(schema.users)
+                        .set({
+                            streak: currentStreak,
+                            totalCommits,
+                            todayCommits,
+                            yesterdayCommits,
+                            weeklyCommits,
+                            activeDays,
+                            totalProjects,
+                            projectsData: projects,
+                            languages,
+                            totalPullRequests,
+                            contributionData: contributionCalendar,
+                            updatedAt: new Date()
+                        })
+                        .where(eq(schema.users.id, userId));
+
+                    await updateUserGoals(userId, {
+                        currentStreak, weeklyCommits, activeDays, totalProjects, contributionCalendar
+                    });
+                    
+                    console.log(`Background sync complete for ${githubUsername}`);
+                } catch (err) {
+                    console.error(`Background sync failed for ${githubUsername}:`, err);
+                }
+            })();
+
+            return reply.status(200).send({ message: "Webhook accepted, sync started" });
+        } catch (error) {
+            console.error("Webhook processing error:", error);
+            return reply.status(500).send({ message: "Internal server error" });
+        }
+    });
+
     // Custom route to force-sync GitHub data
     instance.post('/api/user/sync-github', async (req, reply) => {
         console.log(`Sync-Github called. Headers: ${JSON.stringify(req.headers)}`);
